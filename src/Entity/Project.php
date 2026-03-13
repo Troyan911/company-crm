@@ -10,10 +10,6 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProjectRepository::class)]
-#[ApiResource(
-    normalizationContext: ['groups' => ['project:read']],
-    denormalizationContext: ['groups' => ['project:write']]
-)]
 class Project
 {
     #[ORM\Id]
@@ -22,12 +18,9 @@ class Project
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 255)]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'project')]
-    #[Assert\NotBlank]
     private ?Company $company = null;
 
     /**

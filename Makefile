@@ -38,15 +38,6 @@ cache:
 fixtures:
 	docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 
-elastica-create:
-	docker compose exec php php bin/console fos:elastica:create
-
-elastica-reset:
-	docker compose exec php php bin/console fos:elastica:reset
-
-elastica-populate:
-	docker compose exec php php bin/console fos:elastica:populate
-
 setup:
 	docker compose exec php php bin/console doctrine:database:create --if-not-exists
 	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction

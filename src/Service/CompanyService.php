@@ -42,12 +42,12 @@ class CompanyService
 
     public function findOrFail(int $id): Company
     {
-        $company = $this->em->getRepository(Company::class)->find($id);
+        $entity = $this->em->getRepository(Company::class)->find($id);
 
-        if (!$company) {
+        if (!$entity) {
             throw new NotFoundHttpException('Company not found');
         }
 
-        return $company;
+        return $entity;
     }
 }
