@@ -11,7 +11,9 @@ cmd -> make setup
 
     update PASSPHRASE in .env 
 
-Route list make route
+Route list 
+
+cmd -> make route
 
 
 
