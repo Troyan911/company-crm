@@ -12,17 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class RegisterController extends AbstractController
+final class LoginController extends AbstractController
 {
-
-
-
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
     public function login(
-        Request $request,
-        EntityManagerInterface $em,
+        Request                     $request,
+        EntityManagerInterface      $em,
         UserPasswordHasherInterface $passwordHasher,
-        JWTTokenManagerInterface $jwtManager
+        JWTTokenManagerInterface    $jwtManager
     ): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
