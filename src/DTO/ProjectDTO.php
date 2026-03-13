@@ -22,7 +22,7 @@ class ProjectDTO
 
     public function __construct(?Project $project = null)
     {
-        if($project) {
+        if ($project) {
             $this->id = $project->getId();
             $this->name = $project->getName();
             $this->isActive = $project->getIsActive();

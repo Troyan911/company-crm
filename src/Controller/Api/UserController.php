@@ -10,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -18,10 +17,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly UserService $service,
+        private readonly UserService            $service,
         private readonly EntityManagerInterface $em,
-        private readonly ValidatorInterface $validator
-    ) {
+        private readonly ValidatorInterface     $validator
+    )
+    {
     }
 
     #[Route('', methods: ['GET'])]
@@ -51,9 +51,10 @@ class UserController extends AbstractController
 
     #[Route('', methods: ['POST'])]
     public function create(
-        Request $request,
+        Request        $request,
         UserRepository $userRepository
-    ): JsonResponse {
+    ): JsonResponse
+    {
 
         $data = json_decode($request->getContent(), true);
 
@@ -89,8 +90,9 @@ class UserController extends AbstractController
     #[Route('/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
     public function update(
         Request $request,
-        int $id
-    ): JsonResponse {
+        int     $id
+    ): JsonResponse
+    {
 
         $data = json_decode($request->getContent(), true);
 

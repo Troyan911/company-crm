@@ -12,7 +12,9 @@ class ProjectService
 {
     public function __construct(
         private EntityManagerInterface $em
-    ) {}
+    )
+    {
+    }
 
     public function create(ProjectDTO $dto): Project
     {

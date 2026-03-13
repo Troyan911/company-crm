@@ -16,10 +16,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ProjectController extends AbstractController
 {
     public function __construct(
-        private readonly ProjectService $service,
+        private readonly ProjectService         $service,
         private readonly EntityManagerInterface $em,
-        private readonly ValidatorInterface $validator
-    ) {
+        private readonly ValidatorInterface     $validator
+    )
+    {
     }
 
     #[Route('', methods: ['GET'])]

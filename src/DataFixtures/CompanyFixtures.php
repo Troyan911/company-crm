@@ -9,7 +9,6 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service_l
 
 class CompanyFixtures extends Fixture
 {
-//    public const COMPANY_1 = 'company_1';
     public const COMPANIES = [
         'company_1' => 'Google',
         'company_2' => 'Amazon'

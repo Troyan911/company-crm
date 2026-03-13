@@ -18,7 +18,7 @@ class ProjectFixtures extends Fixture implements DependentFixtureInterface
     {
         $faker = Factory::create();
 
-        for ($i = 0; $i <5 ; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $keys = array_keys(CompanyFixtures::COMPANIES);
             $companyIndex = $i % count($keys);
             $companyRef = $keys[$companyIndex];

@@ -24,9 +24,6 @@ security:
             security: false
 
         public_api:
-#            pattern: ^/api/(company|project|user)$
-#            pattern: ^/api/(company|project|user)/?$
-#            pattern: ^/api/(company|project|user)(/\d+)?/?$
             pattern: ^/api/(company|project|user)(/[^/]+)?/?$
             stateless: true
             security: false
@@ -34,153 +31,12 @@ security:
             pattern: ^/api/
             stateless: true
             provider: app_user_provider
-            jwt: ~  # обробка JWT для всіх методів крім login/register
+            jwt: ~
 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
     access_control:
-        # POST/PUT/DELETE /api/company → тільки залогінені
         - { path: ^/api/company, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, DELETE] }
-
-        # GET /api/company та /api/company/{id} доступні всім через public_api
-        # не треба IS_AUTHENTICATED_ANONYMOUSLY тут
-
-        # Всі інші /api/... → тільки JWT
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
-#    access_control:
-#        # GET /api/company та /api/company/{id} доступні завжди
-#        - { path: ^/api/company, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-#
-#        # POST/PUT/DELETE /api/company → тільки залогінені користувачі
-#        - { path: ^/api/company, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, DELETE] }
-#
-#        # Всі інші /api/... запити потребують JWT
-#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
-
-
-#13.03
-#security:
-#    password_hashers:
-#        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-#
-#    providers:
-#        app_user_provider:
-#            entity:
-#                class: App\Entity\User
-#                property: email
-#
-#    firewalls:
-#        login:
-#            pattern: ^/api/login$
-#            stateless: true
-#            json_login:
-#                check_path: /api/login
-#                username_path: email
-#                password_path: password
-#            security: false
-#        register:
-#            pattern: ^/api/register$
-#            stateless: true
-#            security: false
-#        api:
-#            pattern: ^/api/
-#            stateless: true
-#            provider: app_user_provider
-#            jwt: ~
-#        dev:
-#            pattern: ^/(_(profiler|wdt)|css|images|js)/
-#            security: false
-#    access_control:
-#        - { path: ^/api/company, roles: IS_AUTHENTICATED_FULLY, methods: [ GET ] }
-#        - { path: ^/api/company, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
-#        - { path: ^/api/project, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-#        - { path: ^/api/user, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [GET] }
-
-
-#    access_control:
-#        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
-#security:
-#    password_hashers:
-#        App\Entity\User:
-#            algorithm: auto
-#
-#    providers:
-#        app_user_provider:
-#            entity:
-#                class: App\Entity\User
-#                property: email
-#
-#    firewalls:
-#        login:
-#            pattern: ^/api/login$
-#            stateless: true
-#            json_login:
-#                check_path: /api/login
-#                username_path: email
-#                password_path: password
-#
-#        api:
-#            pattern: ^/api
-#            stateless: true
-#            provider: app_user_provider
-#            jwt: ~   # LexikJWT автоматично додає jwt_token_authenticator
-#
-#        dev:
-#            pattern: ^/(_(profiler|wdt)|css|images|js)/
-#            security: false
-#
-#    access_control:
-#        - { path: ^/api/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-#        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-
-####old
-
-#security:
-#    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
-#    password_hashers:
-#        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-#
-#    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
-#    providers:
-#        users_in_memory: { memory: null }
-#
-#    firewalls:
-#        dev:
-#            # Ensure dev tools and static assets are always allowed
-#            pattern: ^/(_profiler|_wdt|assets|build)/
-#            security: false
-#        main:
-#            lazy: true
-#            provider: users_in_memory
-#
-#            # Activate different ways to authenticate:
-#            # https://symfony.com/doc/current/security.html#the-firewall
-#
-#            # https://symfony.com/doc/current/security/impersonating_user.html
-#            # switch_user: true
-#
-#    # Note: Only the *first* matching rule is applied
-#    access_control:
-#        # - { path: ^/admin, roles: ROLE_ADMIN }
-#        # - { path: ^/profile, roles: ROLE_USER }
-#
-#when@test:
-#    security:
-#        password_hashers:
-#            # Password hashers are resource-intensive by design to ensure security.
-#            # In tests, it's safe to reduce their cost to improve performance.
-#            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
-#                algorithm: auto
-#                cost: 4 # Lowest possible value for bcrypt
-#                time_cost: 3 # Lowest possible value for argon
-#                memory_cost: 10 # Lowest possible value for argon

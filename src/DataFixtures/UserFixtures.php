@@ -11,7 +11,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function __construct(private UserPasswordHasherInterface $passwordHasher) {
+    public function __construct(private UserPasswordHasherInterface $passwordHasher)
+    {
 
     }
 
@@ -23,13 +24,12 @@ class UserFixtures extends Fixture implements DependentFixtureInterface
         for ($i = 1; $i <= 5; $i++) {
 
             $user = (new User())
-                ->setFirstName('User'.$i)
+                ->setFirstName('User' . $i)
                 ->setLastName('Test')
                 ->setEmail("user$i@test.com")
                 ->setProject($project);
 
             $user->setPassword($this->passwordHasher->hashPassword($user, $defaultPassword));
-
 
 
             $manager->persist($user);
