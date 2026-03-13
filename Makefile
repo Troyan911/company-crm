@@ -2,19 +2,13 @@ up:
 	docker compose up -d
 
 down:
-	docker compose down
+	docker compose down -v
 
 build:
 	docker compose up -d --build
 
 bash:
 	docker compose exec php bash
-
-console:
-	docker compose exec php php bin/console
-
-db-create:
-	docker compose exec php php bin/console doctrine:database:create --if-not-exists
 
 go:
 	docker compose exec php bash
@@ -38,9 +32,16 @@ cache:
 fixtures:
 	docker compose exec php php bin/console doctrine:fixtures:load --no-interaction
 
-setup:
-	docker compose exec php php bin/console doctrine:database:create --if-not-exists
-	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
-	docker compose exec php php bin/console cache:clear
+jwt:
+	docker compose exec php php bin/console lexik:jwt:generate-keypair
+
+composer:
+	docker compose exec php composer install
+
+setup: composer migrate fixtures jwt cache
+
+
+route:
+	docker compose exec php php bin/console debug:route
 
 
