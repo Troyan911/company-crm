@@ -7,15 +7,10 @@ security:
             entity:
                 class: App\Entity\User
                 property: email
-
     firewalls:
         login:
             pattern: ^/api/login$
             stateless: true
-            json_login:
-                check_path: /api/login
-                username_path: email
-                password_path: password
             security: false
 
         register:
@@ -23,10 +18,6 @@ security:
             stateless: true
             security: false
 
-        public_api:
-            pattern: ^/api/(company|project|user)(/[^/]+)?/?$
-            stateless: true
-            security: false
         api:
             pattern: ^/api/
             stateless: true
@@ -38,5 +29,11 @@ security:
             security: false
 
     access_control:
-        - { path: ^/api/company, roles: IS_AUTHENTICATED_FULLY, methods: [POST, PUT, DELETE] }
+        # PUBLIC GET for user/project/company
+        - { path: ^/api/(user|project|company)(/\d+)?$, methods: [GET], roles: PUBLIC_ACCESS }
+
+        # PROTECTED write for user/project/company
+        - { path: ^/api/(user|project|company), methods: [POST, PUT, DELETE], roles: IS_AUTHENTICATED_FULLY }
+
+        # everything else in api requires auth
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

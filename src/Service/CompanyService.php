@@ -2,18 +2,22 @@
 
 namespace App\Service;
 
-use App\Dto\CompanyDTO;
+use App\DTO\Company\CompanyInputDTO;
 use App\Entity\Company;
+use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CompanyService
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly CompanyRepository      $repository
+    )
     {
     }
 
-    public function create(CompanyDTO $dto): Company
+    public function create(CompanyInputDTO $dto): Company
     {
         $company = new Company();
         $company->setName($dto->name);
@@ -24,7 +28,7 @@ class CompanyService
         return $company;
     }
 
-    public function update(int $id, CompanyDTO $dto): Company
+    public function update(int $id, CompanyInputDTO $dto): Company
     {
         $company = $this->findOrFail($id);
         $company->setName($dto->name);
@@ -42,12 +46,17 @@ class CompanyService
 
     public function findOrFail(int $id): Company
     {
-        $entity = $this->em->getRepository(Company::class)->find($id);
+        $company = $this->repository->findCompany($id);
 
-        if (!$entity) {
+        if (!$company) {
             throw new NotFoundHttpException('Company not found');
         }
 
-        return $entity;
+        return $company;
+    }
+
+    public function list(): array
+    {
+        return $this->repository->findAllCompanies();
     }
 }

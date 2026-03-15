@@ -2,21 +2,39 @@
 
 namespace App\Service;
 
-use App\DTO\ProjectDTO;
+use App\DTO\Project\ProjectInputDTO;
 use App\Entity\Company;
 use App\Entity\Project;
+use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProjectService
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
+        private readonly ProjectRepository      $repository
     )
     {
     }
 
-    public function create(ProjectDTO $dto): Project
+    public function list(): array
+    {
+        return $this->repository->findAllProjects();
+    }
+
+    public function findOrFail(int $id): Project
+    {
+        $project = $this->repository->findProject($id);
+
+        if (!$project) {
+            throw new NotFoundHttpException("Project not found");
+        }
+
+        return $project;
+    }
+
+    public function create(ProjectInputDTO $dto): Project
     {
         $company = $this->em
             ->getRepository(Company::class)
@@ -39,16 +57,9 @@ class ProjectService
         return $project;
     }
 
-
-    public function update(int $id, ProjectDTO $dto): Project
+    public function update(int $id, ProjectInputDTO $dto): Project
     {
-        $project = $this->em
-            ->getRepository(Project::class)
-            ->find($id);
-
-        if (!$project) {
-            throw new NotFoundHttpException("Project not found");
-        }
+        $project = $this->findOrFail($id);
 
         $company = $this->em
             ->getRepository(Company::class)
@@ -68,29 +79,11 @@ class ProjectService
         return $project;
     }
 
-
     public function delete(int $id): void
     {
-        $project = $this->em
-            ->getRepository(Project::class)
-            ->find($id);
-
-        if (!$project) {
-            throw new NotFoundHttpException();
-        }
+        $project = $this->findOrFail($id);
 
         $this->em->remove($project);
         $this->em->flush();
-    }
-
-    public function findOrFail(int $id): Project
-    {
-        $entity = $this->em->getRepository(Project::class)->find($id);
-
-        if (!$entity) {
-            throw new NotFoundHttpException('Project not found');
-        }
-
-        return $entity;
     }
 }
