@@ -24,7 +24,8 @@ migrate:
 	docker compose exec php php bin/console doctrine:migrations:migrate --no-interaction
 
 test:
-	docker compose exec php php bin/phpunit #--debug
+	docker compose exec php php bin/phpunit tests/Unit  #--debug
+	docker compose exec php php bin/phpunit tests/Api  #--debug
 
 schema-update:
 	docker compose exec php php bin/console doctrine:schema:update --force
@@ -46,5 +47,10 @@ setup: composer migrate fixtures jwt cache
 
 route:
 	docker compose exec php php bin/console debug:route
+
+test-setup:
+	docker compose exec php php bin/console doctrine:database:create --env=test  --no-interaction
+	docker compose exec php php bin/console doctrine:migrations:migrate --env=test  --no-interaction
+	docker compose exec php php bin/console doctrine:fixtures:load --env=test  --no-interaction
 
 

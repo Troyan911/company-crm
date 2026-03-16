@@ -17,7 +17,7 @@ class ProjectTransformer
 
         $dto->companyId = $project->getCompany()?->getId();
 
-        $dto->users = $project->getUser()
+        $dto->users = $project->getUsers()
             ->map(fn($u) => [
                 'id' => $u->getId(),
                 'email' => $u->getEmail(),
