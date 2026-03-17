@@ -157,4 +157,58 @@ class ProjectApiTest extends BaseApiTest
         $deleted = $this->em->getRepository(Project::class)->find($this->projectId);
         $this->assertNull($deleted);
     }
+
+
+    public function testUnauthorizedAccess(): void
+    {
+        $this->client->setServerParameters([]);
+
+        // GET list allowed
+        $this->client->request('GET', '/api/project');
+        $this->assertResponseIsSuccessful();
+
+        // GET one allowed
+        $this->client->request('GET', '/api/project/' . $this->projectId);
+        $this->assertResponseIsSuccessful();
+
+        // POST forbidden
+        $this->client->request(
+            'POST',
+            '/api/project',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'name' => 'No Auth',
+                'isActive' => true,
+                'companyId' => 1
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+
+        // PUT forbidden
+        $this->client->request(
+            'PUT',
+            '/api/project/' . $this->projectId,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'name' => 'No Auth',
+                'isActive' => true,
+                'companyId' => 1
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+
+        // DELETE forbidden
+        $this->client->request(
+            'DELETE',
+            '/api/project/' . $this->projectId
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+    }
 }
