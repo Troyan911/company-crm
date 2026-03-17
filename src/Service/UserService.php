@@ -2,24 +2,47 @@
 
 namespace App\Service;
 
-use App\DTO\UserDTO;
+use App\DTO\User\UserInputDTO;
 use App\Entity\Project;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserService
 {
     public function __construct(
-        private EntityManagerInterface      $em,
-        private UserPasswordHasherInterface $hasher,
+        private readonly EntityManagerInterface      $em,
+        private readonly UserRepository              $repository,
+        private readonly UserPasswordHasherInterface $hasher,
     )
     {
     }
 
-    public function create(UserDTO $dto): User
+    public function list(): array
     {
+        return $this->repository->findAllUsers();
+    }
+
+    public function findOrFail(int $id): User
+    {
+        $user = $this->repository->findUser($id);
+
+        if (!$user) {
+            throw new NotFoundHttpException("User not found");
+        }
+
+        return $user;
+    }
+
+    public function create(UserInputDTO $dto): User
+    {
+        if ($this->repository->findByEmail($dto->email)) {
+            throw new BadRequestHttpException('Email already exists');
+        }
+
         $user = new User();
 
         $user
@@ -36,8 +59,6 @@ class UserService
             $user->setPassword($hash);
         }
 
-        // project
-
         if ($dto->projectId) {
 
             $project = $this->em
@@ -45,7 +66,7 @@ class UserService
                 ->find($dto->projectId);
 
             if (!$project) {
-                throw new NotFoundHttpException();
+                throw new NotFoundHttpException("Project not found");
             }
 
             $user->setProject($project);
@@ -57,15 +78,25 @@ class UserService
         return $user;
     }
 
-
-    public function update(int $id, UserDTO $dto): User
+    public function update(int $id, UserInputDTO $dto): User
     {
         $user = $this->findOrFail($id);
 
+        // check email change
+        if ($dto->email && $dto->email !== $user->getEmail()) {
+
+            $existing = $this->repository->findOneByEmail($dto->email);
+
+            if ($existing && $existing->getId() !== $user->getId()) {
+                throw new BadRequestHttpException('Email already exists');
+            }
+
+            $user->setEmail($dto->email);
+        }
+
         $user
             ->setFirstName($dto->firstName)
-            ->setLastName($dto->lastName)
-            ->setEmail($dto->email);
+            ->setLastName($dto->lastName);
 
         if ($dto->password) {
 
@@ -95,7 +126,6 @@ class UserService
         return $user;
     }
 
-
     public function delete(int $id): void
     {
         $user = $this->findOrFail($id);
@@ -103,18 +133,4 @@ class UserService
         $this->em->remove($user);
         $this->em->flush();
     }
-
-    public function findOrFail(int $id): User
-    {
-        $user = $this->em
-            ->getRepository(User::class)
-            ->find($id);
-
-        if (!$user) {
-            throw new NotFoundHttpException("User not found");
-        }
-
-        return $user;
-    }
-
 }

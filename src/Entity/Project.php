@@ -57,7 +57,7 @@ class Project
     /**
      * @return Collection<int, User>
      */
-    public function getUser(): Collection
+    public function getUsers(): Collection
     {
         return $this->user;
     }

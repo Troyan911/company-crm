@@ -2,10 +2,9 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\Company;
-use App\DTO\CompanyDTO;
+use App\DTO\Company\CompanyInputDTO;
+use App\Transformer\CompanyTransformer;
 use App\Service\CompanyService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,9 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CompanyController extends AbstractController
 {
     public function __construct(
-        private readonly CompanyService         $service,
-        private readonly EntityManagerInterface $em,
-        private readonly ValidatorInterface     $validator
+        private readonly CompanyService     $service,
+        private readonly CompanyTransformer $transformer,
+        private readonly ValidatorInterface $validator
     )
     {
     }
@@ -26,25 +25,25 @@ class CompanyController extends AbstractController
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $companies = $this->em->getRepository(Company::class)->findAll();
-        $companiesDto = array_map(fn($c) => new CompanyDTO($c), $companies);
+        $companies = $this->service->list();
+        $data = array_map(fn($c) => $this->transformer->toOutputDTO($c), $companies);
 
-        return $this->json($companiesDto);
+        return $this->json($data);
     }
 
-    #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function getCompany(int $id, CompanyService $companyService): JsonResponse
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function get(int $id): JsonResponse
     {
-        $company = $companyService->findOrFail($id);
+        $company = $this->service->findOrFail($id);
 
-        return $this->json(new CompanyDTO($company));
+        return $this->json($this->transformer->toOutputDTO($company));
     }
 
     #[Route('', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $dto = new CompanyDTO();
+        $dto = new CompanyInputDTO();
         $dto->name = $data['name'] ?? null;
 
         $errors = $this->validator->validate($dto);
@@ -54,14 +53,14 @@ class CompanyController extends AbstractController
 
         $company = $this->service->create($dto);
 
-        return $this->json($company, 201);
+        return $this->json($this->transformer->toOutputDTO($company), 201);
     }
 
-    #[Route('/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['PUT'])]
     public function update(Request $request, int $id): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $dto = new CompanyDTO();
+        $dto = new CompanyInputDTO();
         $dto->name = $data['name'] ?? null;
 
         $errors = $this->validator->validate($dto);
@@ -70,10 +69,10 @@ class CompanyController extends AbstractController
         }
         $company = $this->service->update($id, $dto);
 
-        return $this->json($company);
+        return $this->json($this->transformer->toOutputDTO($company));
     }
 
-    #[Route('/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $this->service->delete($id);

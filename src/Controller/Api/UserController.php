@@ -2,11 +2,9 @@
 
 namespace App\Controller\Api;
 
-use App\Entity\User;
-use App\DTO\UserDTO;
-use App\Repository\UserRepository;
+use App\DTO\User\UserInputDTO;
 use App\Service\UserService;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Transformer\UserTransformer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,9 +15,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly UserService            $service,
-        private readonly EntityManagerInterface $em,
-        private readonly ValidatorInterface     $validator
+        private readonly UserService        $service,
+        private readonly UserTransformer    $transformer,
+        private readonly ValidatorInterface $validator
     )
     {
     }
@@ -27,45 +25,32 @@ class UserController extends AbstractController
     #[Route('', methods: ['GET'])]
     public function list(): JsonResponse
     {
-        $users = $this->em
-            ->getRepository(User::class)
-            ->findAll();
+        $users = $this->service->list();
 
-        $dto = array_map(
-            fn($u) => new UserDTO($u),
+        $data = array_map(
+            fn($u) => $this->transformer->toOutputDTO($u),
             $users
         );
 
-        return $this->json($dto);
+        return $this->json($data);
     }
 
-
-    #[Route('/{id}', methods: ['GET'], requirements: ['id' => '\d+'])]
-    public function getUserData(int $id): JsonResponse
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function get(int $id): JsonResponse
     {
         $user = $this->service->findOrFail($id);
 
-        return $this->json(new UserDTO($user));
+        return $this->json(
+            $this->transformer->toOutputDTO($user)
+        );
     }
 
-
     #[Route('', methods: ['POST'])]
-    public function create(
-        Request        $request,
-        UserRepository $userRepository
-    ): JsonResponse
+    public function create(Request $request): JsonResponse
     {
-
         $data = json_decode($request->getContent(), true);
 
-        if ($userRepository->findOneBy(['email' => $data['email']])) {
-            return new JsonResponse([
-                'error' => 'Email already exists'
-            ], 400);
-        }
-
-        $dto = new UserDTO();
-
+        $dto = new UserInputDTO();
         $dto->firstName = $data['firstName'] ?? null;
         $dto->lastName = $data['lastName'] ?? null;
         $dto->email = $data['email'] ?? null;
@@ -81,23 +66,17 @@ class UserController extends AbstractController
         $user = $this->service->create($dto);
 
         return $this->json(
-            new UserDTO($user),
+            $this->transformer->toOutputDTO($user),
             201
         );
     }
 
-
-    #[Route('/{id}', methods: ['PUT'], requirements: ['id' => '\d+'])]
-    public function update(
-        Request $request,
-        int     $id
-    ): JsonResponse
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['PUT'])]
+    public function update(Request $request, int $id): JsonResponse
     {
-
         $data = json_decode($request->getContent(), true);
 
-        $dto = new UserDTO();
-
+        $dto = new UserInputDTO();
         $dto->firstName = $data['firstName'] ?? null;
         $dto->lastName = $data['lastName'] ?? null;
         $dto->email = $data['email'] ?? null;
@@ -113,12 +92,11 @@ class UserController extends AbstractController
         $user = $this->service->update($id, $dto);
 
         return $this->json(
-            new UserDTO($user)
+            $this->transformer->toOutputDTO($user)
         );
     }
 
-
-    #[Route('/{id}', methods: ['DELETE'], requirements: ['id' => '\d+'])]
+    #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['DELETE'])]
     public function delete(int $id): JsonResponse
     {
         $this->service->delete($id);

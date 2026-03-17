@@ -27,7 +27,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Length(min: 8, max: 255)]
     private ?string $password;
 
     #[ORM\ManyToOne(inversedBy: 'user')]
