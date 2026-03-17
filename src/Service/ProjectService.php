@@ -9,13 +9,14 @@ use App\Repository\ProjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class ProjectService
+class ProjectService extends BaseService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly ProjectRepository      $repository
+        EntityManagerInterface $em,
+        ProjectRepository      $repository
     )
     {
+        parent::__construct($em, $repository);
     }
 
     public function list(): array

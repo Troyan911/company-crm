@@ -116,4 +116,49 @@ class CompanyApiTest extends BaseApiTest
         $deleted = $this->em->getRepository(\App\Entity\Company::class)->find($this->companyId);
         $this->assertNull($deleted);
     }
+
+    public function testUnauthorizedAccess(): void
+    {
+        $this->client->setServerParameters([]);
+
+        // GET list allowed
+        $this->client->request('GET', '/api/company');
+        $this->assertResponseIsSuccessful();
+
+        // GET one allowed
+        $this->client->request('GET', '/api/company/' . $this->companyId);
+        $this->assertResponseIsSuccessful();
+
+        // POST forbidden
+        $this->client->request(
+            'POST',
+            '/api/company',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['name' => 'No Auth'])
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+
+        // PUT forbidden
+        $this->client->request(
+            'PUT',
+            '/api/company/' . $this->companyId,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['name' => 'No Auth'])
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+
+        // DELETE forbidden
+        $this->client->request(
+            'DELETE',
+            '/api/company/' . $this->companyId
+        );
+
+        $this->assertResponseStatusCodeSame(401);
+    }
 }

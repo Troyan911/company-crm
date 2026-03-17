@@ -182,4 +182,64 @@ class UserApiTest extends BaseApiTest
 
         $this->userId = null;
     }
+
+    public function testUnauthorizedAccess(): void
+    {
+        $user = new User();
+        $user->setFirstName('Some');
+        $user->setLastName('User');
+        $user->setEmail('someuser' . uniqid() . '@mail.com');
+        $user->setPassword('12345678');
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $this->userId = $user->getId();
+        $this->client->setServerParameters([]);
+
+        // GET list allowed
+        $this->client->request('GET', '/api/user');
+        $this->assertResponseIsSuccessful();
+
+        // GET one allowed
+        $this->client->request('GET', '/api/user/' . $this->userId);
+        $this->assertResponseIsSuccessful();
+
+        // POST forbidden
+        $this->client->request(
+            'POST',
+            '/api/user',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'firstName' => 'No',
+                'lastName' => 'Auth',
+                'email' => 'noauth@test.com',
+                'password' => '123456',
+                'projectId' => 1
+            ])
+        );
+        $this->assertResponseStatusCodeSame(401);
+
+        // PUT forbidden
+        $this->client->request(
+            'PUT',
+            '/api/user/' . $this->userId,
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'firstName' => 'No',
+                'lastName' => 'Auth',
+                'email' => 'noauth@test.com',
+                'password' => '123456',
+                'projectId' => 1
+            ])
+        );
+        $this->assertResponseStatusCodeSame(401);
+
+        // DELETE forbidden
+        $this->client->request('DELETE', '/api/user/' . $this->userId);
+        $this->assertResponseStatusCodeSame(401);
+    }
 }

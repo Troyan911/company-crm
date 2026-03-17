@@ -3,13 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Company;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Company>
+ * @extends BaseRepository<Company>
  */
-class CompanyRepository extends ServiceEntityRepository
+class CompanyRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

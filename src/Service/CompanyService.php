@@ -6,15 +6,17 @@ use App\DTO\Company\CompanyInputDTO;
 use App\Entity\Company;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class CompanyService
+class CompanyService extends BaseService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly CompanyRepository      $repository
+        EntityManagerInterface $em,
+        CompanyRepository      $repository
     )
     {
+        parent::__construct($em, $repository);
     }
 
     public function create(CompanyInputDTO $dto): Company
@@ -58,5 +60,10 @@ class CompanyService
     public function list(): array
     {
         return $this->repository->findAllCompanies();
+    }
+
+    public function listPaginated(int $page, int $limit): Pagerfanta
+    {
+        return $this->repository->paginate($page, $limit);
     }
 }

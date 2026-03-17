@@ -3,10 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Project;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ProjectRepository extends ServiceEntityRepository
+class ProjectRepository extends BaseRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
