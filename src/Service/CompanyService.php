@@ -7,6 +7,7 @@ use App\Entity\Company;
 use App\Repository\CompanyRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class CompanyService extends BaseService
@@ -30,7 +31,7 @@ class CompanyService extends BaseService
         return $company;
     }
 
-    public function update(int $id, CompanyInputDTO $dto): Company
+    public function update(int $id, #[MapRequestPayload] CompanyInputDTO $dto): Company
     {
         $company = $this->findOrFail($id);
         $company->setName($dto->name);

@@ -8,6 +8,7 @@ use App\Service\CompanyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
@@ -103,11 +104,9 @@ class CompanyController extends BaseController
             new OA\Response(response: 400, description: 'Validation error')
         ]
     )]
-    public function create(Request $request): JsonResponse
+    public function create(Request $request, #[MapRequestPayload] CompanyInputDTO $dto): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
-        $dto = new CompanyInputDTO();
         $dto->name = $data['name'] ?? null;
 
         $errors = $this->validator->validate($dto);
@@ -148,11 +147,9 @@ class CompanyController extends BaseController
             new OA\Response(response: 404, description: 'Not found')
         ]
     )]
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, int $id, #[MapRequestPayload] CompanyInputDTO $dto): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-
-        $dto = new CompanyInputDTO();
         $dto->name = $data['name'] ?? null;
 
         $errors = $this->validator->validate($dto);
