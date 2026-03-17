@@ -11,14 +11,15 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserService
+class UserService extends BaseService
 {
     public function __construct(
-        private readonly EntityManagerInterface      $em,
-        private readonly UserRepository              $repository,
+        EntityManagerInterface                       $em,
+        UserRepository                               $repository,
         private readonly UserPasswordHasherInterface $hasher,
     )
     {
+        parent::__construct($em, $repository);
     }
 
     public function list(): array

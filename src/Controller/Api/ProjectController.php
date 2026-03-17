@@ -14,14 +14,15 @@ use OpenApi\Attributes as OA;
 
 #[Route('/api/project')]
 #[OA\Tag(name: 'Project')]
-class ProjectController extends AbstractController
+class ProjectController extends BaseController
 {
     public function __construct(
-        private readonly ProjectService     $service,
-        private readonly ProjectTransformer $transformer,
+        ProjectService                      $service,
+        ProjectTransformer                  $transformer,
         private readonly ValidatorInterface $validator
     )
     {
+        $this->init($service, $transformer);
     }
 
     #[Route('', methods: ['GET'])]
@@ -47,16 +48,9 @@ class ProjectController extends AbstractController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $projects = $this->service->list();
-
-        $data = array_map(
-            fn($p) => $this->transformer->toOutputDTO($p),
-            $projects
-        );
-
-        return $this->json($data);
+        return $this->paginatedList($request);
     }
 
     #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]

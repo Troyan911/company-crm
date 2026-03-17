@@ -14,14 +14,15 @@ use OpenApi\Attributes as OA;
 
 #[Route('/api/company')]
 #[OA\Tag(name: 'Company')]
-class CompanyController extends AbstractController
+class CompanyController extends BaseController
 {
     public function __construct(
-        private readonly CompanyService     $service,
-        private readonly CompanyTransformer $transformer,
+        CompanyService                      $service,
+        CompanyTransformer                  $transformer,
         private readonly ValidatorInterface $validator
     )
     {
+        $this->init($service, $transformer);
     }
 
     #[Route('', methods: ['GET'])]
@@ -45,12 +46,9 @@ class CompanyController extends AbstractController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $companies = $this->service->list();
-        $data = array_map(fn($c) => $this->transformer->toOutputDTO($c), $companies);
-
-        return $this->json($data);
+        return $this->paginatedList($request);
     }
 
     #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]

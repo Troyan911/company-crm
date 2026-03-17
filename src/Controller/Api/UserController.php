@@ -14,14 +14,15 @@ use OpenApi\Attributes as OA;
 
 #[Route('/api/user')]
 #[OA\Tag(name: 'User')]
-class UserController extends AbstractController
+class UserController extends BaseController
 {
     public function __construct(
-        private readonly UserService        $service,
-        private readonly UserTransformer    $transformer,
+        UserService                         $service,
+        UserTransformer                     $transformer,
         private readonly ValidatorInterface $validator
     )
     {
+        $this->init($service, $transformer);
     }
 
     #[Route('', methods: ['GET'])]
@@ -48,16 +49,9 @@ class UserController extends AbstractController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $users = $this->service->list();
-
-        $data = array_map(
-            fn($u) => $this->transformer->toOutputDTO($u),
-            $users
-        );
-
-        return $this->json($data);
+        return $this->paginatedList($request);
     }
 
     #[Route('/{id}', requirements: ['id' => '\d+'], methods: ['GET'])]
